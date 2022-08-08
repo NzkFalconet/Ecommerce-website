@@ -5,8 +5,6 @@ const {
   verifyTokenAndAdmin,
 } = require("./verifyToken");
 
-const CryptoJS = require("crypto-js");
- 
 const router = require("express").Router();
 
 //UPDATE
@@ -42,9 +40,7 @@ router.delete("/:id", verifyTokenAndAuthorization, async (req, res) => {
   }
 });
 
-
-
-// GET USER
+//GET USER
 router.get("/find/:id", verifyTokenAndAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -55,21 +51,20 @@ router.get("/find/:id", verifyTokenAndAdmin, async (req, res) => {
   }
 });
 
-
-// GET ALL USER
+//GET ALL USER
 router.get("/", verifyTokenAndAdmin, async (req, res) => {
-    const query = req.query.new;
+  const query = req.query.new;
+  try {
+    const users = query
+      ? await User.find().sort({ _id: -1 }).limit(5)
+      : await User.find();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
-    try {
-      const users =query?await User.find().sort({_id :-1}).limit(1) :await User.find();
-      res.status(200).json(users);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  });
-  
-
-// //GET USER STATS
+//GET USER STATS
 
 router.get("/stats", verifyTokenAndAdmin, async (req, res) => {
   const date = new Date();
@@ -90,7 +85,7 @@ router.get("/stats", verifyTokenAndAdmin, async (req, res) => {
         },
       },
     ]);
-    res.status(200).json(data)
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).json(err);
   }
